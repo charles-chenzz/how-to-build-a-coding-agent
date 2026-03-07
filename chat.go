@@ -85,6 +85,34 @@ func (a *Agent) Run(ctx context.Context) error {
 			continue
 		}
 
+		// Handle special commands
+		if userInput == "/history" {
+			if len(conversation) == 0 {
+				fmt.Println("对话历史为空")
+			} else {
+				fmt.Printf("对话历史 (%d 条消息):\n", len(conversation))
+				for i, conv := range conversation {
+					fmt.Printf("  [%d] %+v\n", i+1, conv)
+				}
+			}
+			continue  // 不发送给 Claude
+		}
+
+		if userInput == "/clear" {
+			oldLen := len(conversation)
+			conversation = []anthropic.MessageParam{}
+			fmt.Printf("已清空对话历史 (删除了 %d 条消息)\n", oldLen)
+			continue  // 不发送给 Claude
+		}
+
+		if userInput == "/help" {
+			fmt.Println("可用命令:")
+			fmt.Println("  /history  - 显示对话历史")
+			fmt.Println("  /clear    - 清空对话历史")
+			fmt.Println("  /help     - 显示帮助信息")
+			continue  // 不发送给 Claude
+		}
+
 		if a.verbose {
 			log.Printf("User input received: %q", userInput)
 		}

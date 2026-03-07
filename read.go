@@ -44,6 +44,9 @@ func main() {
 	if *verbose {
 		log.Printf("Initialized %d tools", len(tools))
 	}
+
+	fmt.Printf("schema %v", ReadFileInputSchema)
+	fmt.Printf("search input shcema %v", SearchInputSchema)
 	agent := NewAgent(&client, getUserMessage, tools, *verbose)
 	err := agent.Run(context.TODO())
 	if err != nil {
@@ -268,7 +271,19 @@ type ReadFileInput struct {
 	Path string `json:"path" jsonschema_description:"The relative path of a file in the working directory."`
 }
 
+type SearchInput struct {
+	Query  string `json:"query" jsonschema_description:"搜索关键词"`
+	Limit  int    `json:"limit,omitempty" jsonschema_description:"结果数量限制"`
+	Offset int    `json:"offset,omitempty" jsonschema_description:"偏移量"`
+}
+
+type StatusInput struct {
+	Status string `json:"status" jsonschema_description:"enum=pending,enum=active,enum=deleted"`
+}
+
 var ReadFileInputSchema = GenerateSchema[ReadFileInput]()
+var SearchInputSchema = GenerateSchema[SearchInput]()
+var StatusSchema = GenerateSchema[StatusInput]()
 
 func ReadFile(input json.RawMessage) (string, error) {
 	readFileInput := ReadFileInput{}
